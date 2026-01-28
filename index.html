@@ -513,6 +513,10 @@
             <button class="btn-success" onclick="saveToJSON()">💾 JSON 저장</button>
             <button class="btn-primary" onclick="document.getElementById('file-upload').click()">📤 JSON 불러오기</button>
             <button class="btn-success" onclick="exportToCSV()">📥 CSV 다운로드</button>
+            <button class="btn-danger" onclick="resetToOriginal()">⚠️ 원본 초기화</button>
+        </div>
+        <div style="margin: 10px 0; padding: 8px; background: #e8f4f8; border-radius: 5px; font-size: 13px;">
+            <span style="color: #0066cc;"><strong>ℹ️ 자동 저장:</strong> 모든 수정 내용은 브라우저에 자동 저장됩니다. 새로고침해도 유지됩니다!</span>
         </div>
         <input type="file" id="file-upload" accept=".json" style="display: none;" onchange="loadFromJSON(event)">
 
@@ -2605,9 +2609,49 @@
         
         // 초기화
         function init() {
+            // localStorage에서 데이터 불러오기
+            loadFromLocalStorage();
             createFilters();
             renderTable();
             updateStats();
+        }
+
+        // localStorage 자동 저장
+        function autoSave() {
+            try {
+                const json = JSON.stringify(data);
+                localStorage.setItem('hanpass_2026_data', json);
+                localStorage.setItem('hanpass_2026_lastSaved', new Date().toISOString());
+                console.log('✅ 자동 저장 완료:', new Date().toLocaleString('ko-KR'));
+            } catch (error) {
+                console.error('❌ 자동 저장 실패:', error);
+            }
+        }
+
+        // localStorage에서 불러오기
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('hanpass_2026_data');
+                if (savedData) {
+                    data = JSON.parse(savedData);
+                    const lastSaved = localStorage.getItem('hanpass_2026_lastSaved');
+                    console.log('✅ 저장된 데이터 불러오기 완료');
+                    if (lastSaved) {
+                        console.log('   마지막 저장:', new Date(lastSaved).toLocaleString('ko-KR'));
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 데이터 불러오기 실패:', error);
+            }
+        }
+
+        // 원본 데이터로 초기화
+        function resetToOriginal() {
+            if (confirm('⚠️ 모든 수정 내용을 삭제하고 원본 데이터로 초기화하시겠습니까?')) {
+                localStorage.removeItem('hanpass_2026_data');
+                localStorage.removeItem('hanpass_2026_lastSaved');
+                location.reload();
+            }
         }
 
         // 필터 생성
@@ -2888,6 +2932,7 @@
             
             data.kpis[kpiIndex].projects[projectIndex][field] = value;
             editingCell = null;
+            autoSave(); // 자동 저장
             renderTable();
             updateStats();
         }
@@ -2898,6 +2943,7 @@
             
             data.kpis[kpiIndex].projects.splice(projectIndex, 1);
             data.kpis[kpiIndex].count = data.kpis[kpiIndex].projects.length;
+            autoSave(); // 자동 저장
             renderTable();
             updateStats();
         }
@@ -3008,6 +3054,7 @@
             }
             
             closeEditModal();
+            autoSave(); // 자동 저장
             renderTable();
             updateStats();
         }
@@ -3033,6 +3080,7 @@
             data.kpis[kpiIndex].count = data.kpis[kpiIndex].projects.length;
             
             closeAddModal();
+            autoSave(); // 자동 저장
             renderTable();
             updateStats();
         }
@@ -3042,6 +3090,13 @@
             const project = data.kpis[kpiIndex].projects[projectIndex];
             const currentLink = project.link || '';
             const newLink = prompt('링크 URL을 입력하세요:', currentLink);
+            
+            if (newLink !== null) {
+                data.kpis[kpiIndex].projects[projectIndex].link = newLink.trim();
+                autoSave(); // 자동 저장
+                renderTable();
+            }
+        }
             
             if (newLink !== null) {
                 data.kpis[kpiIndex].projects[projectIndex].link = newLink.trim();
@@ -3226,6 +3281,7 @@
             link.download = `한패스_2026_${new Date().toISOString().slice(0,10)}.json`;
             link.click();
             URL.revokeObjectURL(url);
+            alert('✅ JSON 파일이 다운로드되었습니다!');
         }
 
         // JSON 불러오기
@@ -3237,6 +3293,7 @@
             reader.onload = function(e) {
                 try {
                     data = JSON.parse(e.target.result);
+                    autoSave(); // 불러온 데이터 자동 저장
                     renderTable();
                     updateStats();
                     alert('✅ 데이터를 불러왔습니다!');
