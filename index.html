@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한패스 2026 경영기획 - 트리 테이블</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header .stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            padding: 10px 20px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .controls button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .filter-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .filter-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .filter-group label:hover {
+            background: #d5dbdb;
+        }
+
+        .filter-group input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #34495e;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #2c3e50;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #ecf0f1;
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr.hidden {
+            display: none;
+        }
+
+        td {
+            padding: 12px 15px;
+        }
+
+        .level-0 {
+            background: #e74c3c;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .level-0:hover {
+            background: #c0392b !important;
+        }
+
+        .level-1 {
+            background: #9b59b6;
+            color: white;
+            font-weight: bold;
+        }
+
+        .level-1:hover {
+            background: #8e44ad !important;
+        }
+
+        .level-2 {
+            background: white;
+        }
+
+        .indent-0 { padding-left: 15px; }
+        .indent-1 { padding-left: 40px; }
+        .indent-2 { padding-left: 65px; }
+
+        .toggle-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 5px;
+            user-select: none;
+        }
+
+        .toggle-icon:hover {
+            opacity: 0.7;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .badge-count {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-division-크로스보더 {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-division-플랫폼 {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .badge-division-고객 {
+            background: #e67e22;
+            color: white;
+        }
+
+        .badge-status-완료 {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-status-진행중 {
+            background: #3498db;
+            color: white;
+        }
+
+        .badge-status-개발중 {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .badge-status-협상중 {
+            background: #f39c12;
+            color: white;
+        }
+
+        .badge-status-검토중 {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .badge-status-대기 {
+            background: #bdc3c7;
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .header .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 한패스 2026 경영기획</h1>
+        <div class="stats">
+            <div class="stat-item">📊 총 KPI: <span id="total-kpis">0</span>개</div>
+            <div class="stat-item">📁 총 프로젝트: <span id="total-projects">0</span>개</div>
+            <div class="stat-item">👁️ 표시 중: <span id="visible-projects">0</span>개</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <h3>🎛️ 컨트롤</h3>
+        <div class="button-group">
+            <button onclick="expandAll()">➕ 전체 펼치기</button>
+            <button onclick="collapseAll()">➖ 전체 접기</button>
+            <button onclick="resetFilters()">🔄 필터 초기화</button>
+            <button onclick="exportToCSV()">📥 CSV 다운로드</button>
+        </div>
+
+        <div class="filter-section">
+            <h4>🔍 검색</h4>
+            <input type="text" class="search-box" id="search-box" placeholder="프로젝트명, 담당자, 코드 등으로 검색..." oninput="applyFilters()">
+        </div>
+
+        <div class="filter-section">
+            <h4>📊 KPI 필터</h4>
+            <div class="filter-group" id="kpi-filters"></div>
+        </div>
+
+        <div class="filter-section">
+            <h4>🏢 부문 필터</h4>
+            <div class="filter-group" id="division-filters"></div>
+        </div>
+
+        <div class="filter-section">
+            <h4>📈 상태 필터</h4>
+            <div class="filter-group" id="status-filters"></div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="tree-table">
+            <thead>
+                <tr>
+                    <th style="width: 40%;">항목명</th>
+                    <th style="width: 10%;">코드</th>
+                    <th style="width: 10%;">부문</th>
+                    <th style="width: 10%;">상태</th>
+                    <th style="width: 10%;">담당자</th>
+                    <th style="width: 10%;">진행률</th>
+                    <th style="width: 10%;">마감일</th>
+                </tr>
+            </thead>
+            <tbody id="tree-body">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 데이터
+        let data = {
+  "name": "한패스 2026 경영기획",
+  "kpis": [
+    {
+      "name": "MAU",
+      "count": 23,
+      "projects": [
+        {
+          "id": "CB-CN-001",
+          "name": "위챗 미니프로그램 도입",
+          "code": "CN-001",
+          "division": "크로스보더",
+          "kpi_detail": "+5만명",
+          "progress": 60,
+          "status": "개발중",
+          "owner": "임상택",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-CN-002",
+          "name": "알리페이 미니프로그램 도입",
+          "code": "CN-002",
+          "division": "크로스보더",
+          "kpi_detail": "+3만명",
+          "progress": 40,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "PF-HR-001",
+          "name": "누적 회원 15만명 달성",
+          "code": "HR-001",
+          "division": "플랫폼",
+          "kpi_detail": "MAU 15만/신규 5만",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-HR-005",
+          "name": "근로계약서 전자서명",
+          "code": "HR-005",
+          "division": "플랫폼",
+          "kpi_detail": "사용성 개선",
+          "progress": 100,
+          "status": "완료",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-01"
+        },
+        {
+          "id": "PF-HR-006",
+          "name": "채용공고 크롤링 봇",
+          "code": "HR-006",
+          "division": "플랫폼",
+          "kpi_detail": "콘텐츠 확대",
+          "progress": 90,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-01-30"
+        },
+        {
+          "id": "PF-HR-007",
+          "name": "외국인 비자 설명회",
+          "code": "HR-007",
+          "division": "플랫폼",
+          "kpi_detail": "회원 활성화",
+          "progress": 100,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-01-24"
+        },
+        {
+          "id": "PF-HR-008",
+          "name": "채용설명회",
+          "code": "HR-008",
+          "division": "플랫폼",
+          "kpi_detail": "회원 활성화",
+          "progress": 80,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-01-30"
+        },
+        {
+          "id": "PF-HR-009",
+          "name": "기업회원 전환(O/B)",
+          "code": "HR-009",
+          "division": "플랫폼",
+          "kpi_detail": "B2B 확대",
+          "progress": 5,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-MB-001",
+          "name": "모빌리티 45.4만건 달성",
+          "code": "MB-001",
+          "division": "플랫폼",
+          "kpi_detail": "연 45.4만건",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-MB-002",
+          "name": "일반택시 호출(Splyt-KM)",
+          "code": "MB-002",
+          "division": "플랫폼",
+          "kpi_detail": "공급 확대",
+          "progress": 60,
+          "status": "협상중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "PF-MB-003",
+          "name": "티머니모빌리티 제휴",
+          "code": "MB-003",
+          "division": "플랫폼",
+          "kpi_detail": "공급 확대",
+          "progress": 40,
+          "status": "협상중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "PF-MB-004",
+          "name": "해외카드 결제 모듈",
+          "code": "MB-004",
+          "division": "플랫폼",
+          "kpi_detail": "외국인 접근성",
+          "progress": 50,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "PF-MB-005",
+          "name": "안드로이드 푸시 에러 해결",
+          "code": "MB-005",
+          "division": "플랫폼",
+          "kpi_detail": "사용성 개선",
+          "progress": 80,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "PF-MB-006",
+          "name": "Welcome 2026 프로모션",
+          "code": "MB-006",
+          "division": "플랫폼",
+          "kpi_detail": "이용 활성화",
+          "progress": 60,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "PF-CD-002",
+          "name": "트리플 오토 카드 출시",
+          "code": "CD-002",
+          "division": "플랫폼",
+          "kpi_detail": "신규 상품",
+          "progress": 80,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "PF-CD-004",
+          "name": "한패스 포인트 시스템",
+          "code": "CD-004",
+          "division": "플랫폼",
+          "kpi_detail": "MAU 증대/락인",
+          "progress": 40,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-Q2"
+        },
+        {
+          "id": "CU-ID-003",
+          "name": "대사관 연계 ESG 브랜딩",
+          "code": "ID-003",
+          "division": "고객",
+          "kpi_detail": "브랜드 제고",
+          "progress": 10,
+          "status": "검토중",
+          "owner": "고객부문장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CU-MK-002",
+          "name": "틱톡 10개국 팔로워 1위",
+          "code": "MK-002",
+          "division": "고객",
+          "kpi_detail": "팔로워 증대",
+          "progress": 16,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MK-003",
+          "name": "리텐션율 80% 달성",
+          "code": "MK-003",
+          "division": "고객",
+          "kpi_detail": "리텐션 80%",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-DT-001",
+          "name": "예측모델 구축",
+          "code": "DT-001",
+          "division": "고객",
+          "kpi_detail": "데이터 기반 운영",
+          "progress": 30,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CU-DT-002",
+          "name": "포인트/게임 서비스",
+          "code": "DT-002",
+          "division": "고객",
+          "kpi_detail": "DAU 24만/체류시간",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-OP-002",
+          "name": "무기명 월렛 도입",
+          "code": "OP-002",
+          "division": "고객",
+          "kpi_detail": "비인증 사용자 확대",
+          "progress": 20,
+          "status": "검토중",
+          "owner": "고객부문장",
+          "deadline": "2026-Q2"
+        },
+        {
+          "id": "CU-OP-003",
+          "name": "서비스 이용 확인증 고도화",
+          "code": "OP-003",
+          "division": "고객",
+          "kpi_detail": "사용성 개선",
+          "progress": 60,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-03"
+        }
+      ]
+    },
+    {
+      "name": "신규가입",
+      "count": 36,
+      "projects": [
+        {
+          "id": "PF-HR-001",
+          "name": "누적 회원 15만명 달성",
+          "code": "HR-001",
+          "division": "플랫폼",
+          "kpi_detail": "MAU 15만/신규 5만",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-HR-002",
+          "name": "대학교 제휴 MOU",
+          "code": "HR-002",
+          "division": "플랫폼",
+          "kpi_detail": "+3만명",
+          "progress": 12,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-HR-003",
+          "name": "유학원 100곳 제휴",
+          "code": "HR-003",
+          "division": "플랫폼",
+          "kpi_detail": "+1.5만명",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-HR-004",
+          "name": "인플루언서 500명 에이전시",
+          "code": "HR-004",
+          "division": "플랫폼",
+          "kpi_detail": "+0.8만명",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-LN-001",
+          "name": "대출비교 2059억 달성",
+          "code": "LN-001",
+          "division": "플랫폼",
+          "kpi_detail": "연 2059억/유입 12만명",
+          "progress": 5,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-LN-002",
+          "name": "대출비교 정식 런칭",
+          "code": "LN-002",
+          "division": "플랫폼",
+          "kpi_detail": "2/23 런칭",
+          "progress": 80,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-02-23"
+        },
+        {
+          "id": "PF-LN-004",
+          "name": "고객관리 Framework",
+          "code": "LN-004",
+          "division": "플랫폼",
+          "kpi_detail": "전환율 최적화",
+          "progress": 100,
+          "status": "완료",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-01"
+        },
+        {
+          "id": "PF-LN-005",
+          "name": "10개국 인플루언서 마케팅",
+          "code": "LN-005",
+          "division": "플랫폼",
+          "kpi_detail": "유입 증대",
+          "progress": 40,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CU-CN-001",
+          "name": "중국 신규가입 목표 달성",
+          "code": "CN-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CN-002",
+          "name": "샤오홍슈/틱톡 가입 이벤트",
+          "code": "CN-002",
+          "division": "고객",
+          "kpi_detail": "월 5천명",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CN-003",
+          "name": "친구추천 500명 O/B",
+          "code": "CN-003",
+          "division": "고객",
+          "kpi_detail": "+500명",
+          "progress": 60,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "CU-CN-008",
+          "name": "구로 판다모바일 에이전트",
+          "code": "CN-008",
+          "division": "고객",
+          "kpi_detail": "에이전트 확보",
+          "progress": 40,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "CU-VN-001",
+          "name": "베트남 신규가입 목표",
+          "code": "VN-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 12,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-VN-002",
+          "name": "대학교 온사이트 영업",
+          "code": "VN-002",
+          "division": "고객",
+          "kpi_detail": "월 1천명",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-VN-003",
+          "name": "김해 지점 운영",
+          "code": "VN-003",
+          "division": "고객",
+          "kpi_detail": "거점 확대",
+          "progress": 30,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-PH-001",
+          "name": "필리핀 신규가입 목표",
+          "code": "PH-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 9,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-PH-002",
+          "name": "EPS 온사이트 3인팀 운영",
+          "code": "PH-002",
+          "division": "고객",
+          "kpi_detail": "월 2천명",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MN-001",
+          "name": "몽골 신규가입 목표",
+          "code": "MN-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MN-002",
+          "name": "몽골타운 프로모션",
+          "code": "MN-002",
+          "division": "고객",
+          "kpi_detail": "지역 집중",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CIS-001",
+          "name": "CIS 신규가입 목표",
+          "code": "CIS-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CIS-002",
+          "name": "EPS 미완료자 타겟팅",
+          "code": "CIS-002",
+          "division": "고객",
+          "kpi_detail": "25년 11-12월 대상",
+          "progress": 50,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "CU-NP-001",
+          "name": "네팔 신규가입 목표",
+          "code": "NP-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-NP-002",
+          "name": "수원/안산/동대문 거점 개발",
+          "code": "NP-002",
+          "division": "고객",
+          "kpi_detail": "거점 확대",
+          "progress": 30,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CU-ID-001",
+          "name": "인도네시아 신규가입 목표",
+          "code": "ID-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-ID-002",
+          "name": "남부권 EPS 온사이트",
+          "code": "ID-002",
+          "division": "고객",
+          "kpi_detail": "월 500명",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-ID-003",
+          "name": "대사관 연계 ESG 브랜딩",
+          "code": "ID-003",
+          "division": "고객",
+          "kpi_detail": "브랜드 제고",
+          "progress": 10,
+          "status": "검토중",
+          "owner": "고객부문장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CU-KH-001",
+          "name": "캄보디아 신규가입 목표",
+          "code": "KH-001",
+          "division": "고객",
+          "kpi_detail": "월별 목표",
+          "progress": 5,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-KH-002",
+          "name": "개인/수원 에이전트 활용",
+          "code": "KH-002",
+          "division": "고객",
+          "kpi_detail": "에이전트 촉진",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MK-001",
+          "name": "온라인 모객 18.9만명",
+          "code": "MK-001",
+          "division": "고객",
+          "kpi_detail": "18.9만명(71%)",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MK-002",
+          "name": "틱톡 10개국 팔로워 1위",
+          "code": "MK-002",
+          "division": "고객",
+          "kpi_detail": "팔로워 증대",
+          "progress": 16,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MK-004",
+          "name": "메가프로모션 캠페인",
+          "code": "MK-004",
+          "division": "고객",
+          "kpi_detail": "시즌 이벤트",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CH-001",
+          "name": "에이전트 VIP 30개 육성",
+          "code": "CH-001",
+          "division": "고객",
+          "kpi_detail": "신규 4만명",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CH-003",
+          "name": "EPS 신규입국 90% 가입",
+          "code": "CH-003",
+          "division": "고객",
+          "kpi_detail": "신규 2.2만명",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CH-004",
+          "name": "EPS 현지교육장 연계",
+          "code": "CH-004",
+          "division": "고객",
+          "kpi_detail": "가입 확대",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-OP-001",
+          "name": "나이스 비대면 인증",
+          "code": "OP-001",
+          "division": "고객",
+          "kpi_detail": "인증 간소화",
+          "progress": 70,
+          "status": "개발중",
+          "owner": "고객부문장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CU-OP-005",
+          "name": "회원가입 승인 5분내 90%",
+          "code": "OP-005",
+          "division": "고객",
+          "kpi_detail": "승인 신속화",
+          "progress": 80,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        }
+      ]
+    },
+    {
+      "name": "송금자/송금건",
+      "count": 44,
+      "projects": [
+        {
+          "id": "CU-CN-004",
+          "name": "환율 우위 프로모션",
+          "code": "CN-004",
+          "division": "고객",
+          "kpi_detail": "송금 활성화",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CN-005",
+          "name": "웨이크업 환율 우대 3일 마케팅",
+          "code": "CN-005",
+          "division": "고객",
+          "kpi_detail": "휴면 활성화",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CN-007",
+          "name": "이탈고객 2.8만명 윈백",
+          "code": "CN-007",
+          "division": "고객",
+          "kpi_detail": "+2.8만명",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CU-VN-004",
+          "name": "새해 송금 프로모션",
+          "code": "VN-004",
+          "division": "고객",
+          "kpi_detail": "송금 활성화",
+          "progress": 70,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "CU-PH-003",
+          "name": "아이폰 경품 송금 프로모션",
+          "code": "PH-003",
+          "division": "고객",
+          "kpi_detail": "송금 활성화",
+          "progress": 40,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CU-CIS-003",
+          "name": "웰컴콜/럭키드로우",
+          "code": "CIS-003",
+          "division": "고객",
+          "kpi_detail": "신규 전환",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-PK-001",
+          "name": "파키스탄 휴면고객 활성화",
+          "code": "PK-001",
+          "division": "고객",
+          "kpi_detail": "휴면 전환",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MK-003",
+          "name": "리텐션율 80% 달성",
+          "code": "MK-003",
+          "division": "고객",
+          "kpi_detail": "리텐션 80%",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-DT-001",
+          "name": "예측모델 구축",
+          "code": "DT-001",
+          "division": "고객",
+          "kpi_detail": "데이터 기반 운영",
+          "progress": 30,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CB-CN-004",
+          "name": "계좌송금 PAYWHO 도입",
+          "code": "CN-004",
+          "division": "크로스보더",
+          "kpi_detail": "+2만건/월",
+          "progress": 20,
+          "status": "대기(HOLD)",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CB-CN-007",
+          "name": "EPAY 도입 검토",
+          "code": "CN-007",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "DROP",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-CN-009",
+          "name": "위챗 QR송금",
+          "code": "CN-009",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 10,
+          "status": "대기(검토중)",
+          "owner": "크로스보더본부장",
+          "deadline": "미정"
+        },
+        {
+          "id": "CB-VN-001",
+          "name": "9PAY 당발송금 추가",
+          "code": "VN-001",
+          "division": "크로스보더",
+          "kpi_detail": "+10만건/월",
+          "progress": 85,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-02-26"
+        },
+        {
+          "id": "CB-VN-002",
+          "name": "9PAY 타발송금 추가",
+          "code": "VN-002",
+          "division": "크로스보더",
+          "kpi_detail": "+5만건/월",
+          "progress": 30,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03-04"
+        },
+        {
+          "id": "CB-UZ-001",
+          "name": "HAMKOR BANK 당발송금",
+          "code": "UZ-001",
+          "division": "크로스보더",
+          "kpi_detail": "+3만건/월",
+          "progress": 70,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CB-UZ-002",
+          "name": "PAYNET 당발송금",
+          "code": "UZ-002",
+          "division": "크로스보더",
+          "kpi_detail": "+2만건/월",
+          "progress": 20,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-UZ-003",
+          "name": "KDB UZ 당발송금",
+          "code": "UZ-003",
+          "division": "크로스보더",
+          "kpi_detail": "+1.5만건/월",
+          "progress": 10,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CB-UZ-005",
+          "name": "UPT 제휴",
+          "code": "UZ-005",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "백로그",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-UZ-006",
+          "name": "OCTOBANK 제휴",
+          "code": "UZ-006",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "백로그",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-UZ-007",
+          "name": "NBU 제휴",
+          "code": "UZ-007",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "DROP",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-PH-001",
+          "name": "BDO BANK 당발송금",
+          "code": "PH-001",
+          "division": "크로스보더",
+          "kpi_detail": "+2만건/월",
+          "progress": 30,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-PH-002",
+          "name": "RCBC BANK 당발송금",
+          "code": "PH-002",
+          "division": "크로스보더",
+          "kpi_detail": "+1.5만건/월",
+          "progress": 30,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-PH-006",
+          "name": "LAND BANK 제휴",
+          "code": "PH-006",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "백로그",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-TH-001",
+          "name": "SMARTSWIFT 당발송금",
+          "code": "TH-001",
+          "division": "크로스보더",
+          "kpi_detail": "+1.5만건/월",
+          "progress": 40,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03-04"
+        },
+        {
+          "id": "CB-TH-003",
+          "name": "바트넷 머니그램 오픈",
+          "code": "TH-003",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 100,
+          "status": "완료",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-01"
+        },
+        {
+          "id": "CB-TH-005",
+          "name": "카시콘은행 제휴",
+          "code": "TH-005",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "백로그",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-TH-006",
+          "name": "SUPER-RICH 제휴",
+          "code": "TH-006",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "백로그",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-TH-008",
+          "name": "카시콘은행(THQR) QR송금",
+          "code": "TH-008",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "DROP",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-KH-001",
+          "name": "ABA BANK 계좌송금",
+          "code": "KH-001",
+          "division": "크로스보더",
+          "kpi_detail": "+1만건/월",
+          "progress": 30,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-KH-002",
+          "name": "WING 캐시픽업",
+          "code": "KH-002",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 100,
+          "status": "완료",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-01-21"
+        },
+        {
+          "id": "CB-KH-003",
+          "name": "AMK 월렛송금",
+          "code": "KH-003",
+          "division": "크로스보더",
+          "kpi_detail": "+0.8만건/월",
+          "progress": 30,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-KH-004",
+          "name": "TRUEMONEY 캐시픽업",
+          "code": "KH-004",
+          "division": "크로스보더",
+          "kpi_detail": "+0.8만건/월",
+          "progress": 30,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-KH-006",
+          "name": "KHQR QR송금",
+          "code": "KH-006",
+          "division": "크로스보더",
+          "kpi_detail": "+1.5만건/월",
+          "progress": 60,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03-26"
+        },
+        {
+          "id": "CB-FX-004",
+          "name": "펀딩 자동화 100%",
+          "code": "FX-004",
+          "division": "크로스보더",
+          "kpi_detail": "펜딩 0건",
+          "progress": 30,
+          "status": "진행중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CB-FX-005",
+          "name": "MTO 크레딧라인 확대",
+          "code": "FX-005",
+          "division": "크로스보더",
+          "kpi_detail": "볼륨 증대",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CN-006",
+          "name": "고액송금 캐시백 O/B",
+          "code": "CN-006",
+          "division": "고객",
+          "kpi_detail": "고액자 유지",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MN-002",
+          "name": "몽골타운 프로모션",
+          "code": "MN-002",
+          "division": "고객",
+          "kpi_detail": "지역 집중",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-NP-002",
+          "name": "수원/안산/동대문 거점 개발",
+          "code": "NP-002",
+          "division": "고객",
+          "kpi_detail": "거점 확대",
+          "progress": 30,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "CU-BD-001",
+          "name": "방글라데시 송금 활성화",
+          "code": "BD-001",
+          "division": "고객",
+          "kpi_detail": "O/B 강화",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MK-004",
+          "name": "메가프로모션 캠페인",
+          "code": "MK-004",
+          "division": "고객",
+          "kpi_detail": "시즌 이벤트",
+          "progress": 15,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CH-001",
+          "name": "에이전트 VIP 30개 육성",
+          "code": "CH-001",
+          "division": "고객",
+          "kpi_detail": "신규 4만명",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-CH-002",
+          "name": "에이전트 인센티브제 도입",
+          "code": "CH-002",
+          "division": "고객",
+          "kpi_detail": "성과 기반",
+          "progress": 40,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CU-OP-004",
+          "name": "송금 실행 10분내 90%",
+          "code": "OP-004",
+          "division": "고객",
+          "kpi_detail": "프로세스 최적화",
+          "progress": 85,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-OP-006",
+          "name": "환불율 1% 미만",
+          "code": "OP-006",
+          "division": "고객",
+          "kpi_detail": "품질 관리",
+          "progress": 90,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        }
+      ]
+    },
+    {
+      "name": "교차사용자",
+      "count": 19,
+      "projects": [
+        {
+          "id": "CB-CN-008",
+          "name": "위챗 QR결제",
+          "code": "CN-008",
+          "division": "크로스보더",
+          "kpi_detail": "+1만명",
+          "progress": 50,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-CN-010",
+          "name": "알리페이+ QR결제",
+          "code": "CN-010",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 5,
+          "status": "대기(접촉중)",
+          "owner": "크로스보더본부장",
+          "deadline": "미정"
+        },
+        {
+          "id": "CB-CN-011",
+          "name": "알리페이 외화충전(PPL협업)",
+          "code": "CN-011",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 5,
+          "status": "대기(접촉중)",
+          "owner": "크로스보더본부장",
+          "deadline": "미정"
+        },
+        {
+          "id": "CB-VN-003",
+          "name": "베트남 공과금",
+          "code": "VN-003",
+          "division": "크로스보더",
+          "kpi_detail": "+0.5만명",
+          "progress": 10,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-05"
+        },
+        {
+          "id": "CB-VN-004",
+          "name": "9PAY QR결제",
+          "code": "VN-004",
+          "division": "크로스보더",
+          "kpi_detail": "+0.8만명",
+          "progress": 40,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-UZ-004",
+          "name": "HAMKOR 공과금",
+          "code": "UZ-004",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 10,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-05"
+        },
+        {
+          "id": "CB-PH-003",
+          "name": "MAYA 외화충전",
+          "code": "PH-003",
+          "division": "크로스보더",
+          "kpi_detail": "+2만명",
+          "progress": 60,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CB-PH-004",
+          "name": "MAYA QR결제",
+          "code": "PH-004",
+          "division": "크로스보더",
+          "kpi_detail": "+1만명",
+          "progress": 20,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-05"
+        },
+        {
+          "id": "CB-PH-005",
+          "name": "VENTAJA 공과금",
+          "code": "PH-005",
+          "division": "크로스보더",
+          "kpi_detail": "+0.8만명",
+          "progress": 70,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CB-TH-002",
+          "name": "DEEMONEY(GLN) QR결제",
+          "code": "TH-002",
+          "division": "크로스보더",
+          "kpi_detail": "+0.8만명",
+          "progress": 30,
+          "status": "대기",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-04"
+        },
+        {
+          "id": "CB-TH-007",
+          "name": "카시콘은행(THQR) QR결제",
+          "code": "TH-007",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 0,
+          "status": "DROP",
+          "owner": "크로스보더본부장",
+          "deadline": "-"
+        },
+        {
+          "id": "CB-KH-005",
+          "name": "KHQR QR결제",
+          "code": "KH-005",
+          "division": "크로스보더",
+          "kpi_detail": "+1만명",
+          "progress": 80,
+          "status": "개발중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-02-26"
+        },
+        {
+          "id": "PF-CM-001",
+          "name": "커머스 7.35억 거래액",
+          "code": "CM-001",
+          "division": "플랫폼",
+          "kpi_detail": "거래액 7.35억",
+          "progress": 5,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-MB-001",
+          "name": "모빌리티 45.4만건 달성",
+          "code": "MB-001",
+          "division": "플랫폼",
+          "kpi_detail": "연 45.4만건",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-CD-004",
+          "name": "한패스 포인트 시스템",
+          "code": "CD-004",
+          "division": "플랫폼",
+          "kpi_detail": "MAU 증대/락인",
+          "progress": 40,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-Q2"
+        },
+        {
+          "id": "PF-LN-006",
+          "name": "중고차대출 서비스",
+          "code": "LN-006",
+          "division": "플랫폼",
+          "kpi_detail": "신규 상품",
+          "progress": 30,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "PF-LN-007",
+          "name": "비상금대출 서비스",
+          "code": "LN-007",
+          "division": "플랫폼",
+          "kpi_detail": "신규 상품",
+          "progress": 10,
+          "status": "검토중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-Q3"
+        },
+        {
+          "id": "CU-DT-002",
+          "name": "포인트/게임 서비스",
+          "code": "DT-002",
+          "division": "고객",
+          "kpi_detail": "DAU 24만/체류시간",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-OP-002",
+          "name": "무기명 월렛 도입",
+          "code": "OP-002",
+          "division": "고객",
+          "kpi_detail": "비인증 사용자 확대",
+          "progress": 20,
+          "status": "검토중",
+          "owner": "고객부문장",
+          "deadline": "2026-Q2"
+        }
+      ]
+    },
+    {
+      "name": "매출/비용절감",
+      "count": 23,
+      "projects": [
+        {
+          "id": "CB-CN-003",
+          "name": "계좌송금 WU 수수료 인하",
+          "code": "CN-003",
+          "division": "크로스보더",
+          "kpi_detail": "월 2천만원 절감",
+          "progress": 80,
+          "status": "협상중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "CB-CN-005",
+          "name": "위챗 수수료 인하",
+          "code": "CN-005",
+          "division": "크로스보더",
+          "kpi_detail": "월 2.5천만원 절감",
+          "progress": 100,
+          "status": "완료",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-01-15"
+        },
+        {
+          "id": "CB-CN-006",
+          "name": "CUP 수수료 면제 프로모션",
+          "code": "CN-006",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 100,
+          "status": "완료",
+          "owner": "크로스보더본부장",
+          "deadline": "2025-12"
+        },
+        {
+          "id": "CB-TH-004",
+          "name": "DEEMONEY FEE 인하",
+          "code": "TH-004",
+          "division": "크로스보더",
+          "kpi_detail": "-",
+          "progress": 100,
+          "status": "완료",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-01"
+        },
+        {
+          "id": "CB-FX-001",
+          "name": "외환차손익 80억 달성",
+          "code": "FX-001",
+          "division": "크로스보더",
+          "kpi_detail": "80억원",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CB-FX-002",
+          "name": "선물환 거래 개시",
+          "code": "FX-002",
+          "division": "크로스보더",
+          "kpi_detail": "수익 증대",
+          "progress": 40,
+          "status": "진행중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "CB-FX-003",
+          "name": "채권/RP 활용 전략",
+          "code": "FX-003",
+          "division": "크로스보더",
+          "kpi_detail": "수익 증대",
+          "progress": 20,
+          "status": "진행중",
+          "owner": "크로스보더본부장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "PF-CM-001",
+          "name": "커머스 7.35억 거래액",
+          "code": "CM-001",
+          "division": "플랫폼",
+          "kpi_detail": "거래액 7.35억",
+          "progress": 5,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-CM-002",
+          "name": "JB(브라보코리아) 연동",
+          "code": "CM-002",
+          "division": "플랫폼",
+          "kpi_detail": "인프라 구축",
+          "progress": 80,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-01"
+        },
+        {
+          "id": "PF-CM-003",
+          "name": "핵심 셀러 입점",
+          "code": "CM-003",
+          "division": "플랫폼",
+          "kpi_detail": "10개사 이상",
+          "progress": 40,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "PF-CM-004",
+          "name": "CVR 3% 달성",
+          "code": "CM-004",
+          "division": "플랫폼",
+          "kpi_detail": "전환율 3%",
+          "progress": 30,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "PF-CM-005",
+          "name": "GA 연동 및 퍼널 분석",
+          "code": "CM-005",
+          "division": "플랫폼",
+          "kpi_detail": "데이터 기반 운영",
+          "progress": 70,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "PF-CD-001",
+          "name": "카드 월 350억 거래액",
+          "code": "CD-001",
+          "division": "플랫폼",
+          "kpi_detail": "월 350억/280만건",
+          "progress": 8,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-CD-002",
+          "name": "트리플 오토 카드 출시",
+          "code": "CD-002",
+          "division": "플랫폼",
+          "kpi_detail": "신규 상품",
+          "progress": 80,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "PF-CD-003",
+          "name": "매입사 BC→KB 변경",
+          "code": "CD-003",
+          "division": "플랫폼",
+          "kpi_detail": "비용 절감",
+          "progress": 20,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-Q2"
+        },
+        {
+          "id": "PF-CD-005",
+          "name": "UnionPay 카드 제조사 교체",
+          "code": "CD-005",
+          "division": "플랫폼",
+          "kpi_detail": "품질 개선",
+          "progress": 90,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-02"
+        },
+        {
+          "id": "PF-CD-006",
+          "name": "CU PLCC 카드 개발",
+          "code": "CD-006",
+          "division": "플랫폼",
+          "kpi_detail": "제휴 카드",
+          "progress": 30,
+          "status": "협상중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-Q2"
+        },
+        {
+          "id": "PF-LN-001",
+          "name": "대출비교 2059억 달성",
+          "code": "LN-001",
+          "division": "플랫폼",
+          "kpi_detail": "연 2059억/유입 12만명",
+          "progress": 5,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "PF-LN-003",
+          "name": "제휴 금융사 9개사 확보",
+          "code": "LN-003",
+          "division": "플랫폼",
+          "kpi_detail": "9개사 이상",
+          "progress": 60,
+          "status": "진행중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-03"
+        },
+        {
+          "id": "PF-LN-006",
+          "name": "중고차대출 서비스",
+          "code": "LN-006",
+          "division": "플랫폼",
+          "kpi_detail": "신규 상품",
+          "progress": 30,
+          "status": "개발중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-06"
+        },
+        {
+          "id": "PF-LN-007",
+          "name": "비상금대출 서비스",
+          "code": "LN-007",
+          "division": "플랫폼",
+          "kpi_detail": "신규 상품",
+          "progress": 10,
+          "status": "검토중",
+          "owner": "플랫폼본부장",
+          "deadline": "2026-Q3"
+        },
+        {
+          "id": "CU-MK-005",
+          "name": "광고사업 1천만원",
+          "code": "MK-005",
+          "division": "고객",
+          "kpi_detail": "매출 1천만",
+          "progress": 5,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        },
+        {
+          "id": "CU-MK-006",
+          "name": "MCN 인플루언서 500명",
+          "code": "MK-006",
+          "division": "고객",
+          "kpi_detail": "500명 확보",
+          "progress": 10,
+          "status": "진행중",
+          "owner": "고객부문장",
+          "deadline": "2026-12"
+        }
+      ]
+    }
+  ]
+};
+
+        let expandedNodes = new Set();
+        
+        // 초기화
+        function init() {
+            // localStorage에서 데이터 불러오기
+            loadFromLocalStorage();
+            createFilters();
+            renderTable();
+            updateStats();
+            
+            // 루트는 기본 펼침
+            expandedNodes.add('root');
+        }
+
+        // localStorage 자동 저장
+        function autoSave() {
+            try {
+                const json = JSON.stringify(data);
+                localStorage.setItem('hanpass_2026_data', json);
+                localStorage.setItem('hanpass_2026_lastSaved', new Date().toISOString());
+                console.log('✅ 자동 저장 완료:', new Date().toLocaleString('ko-KR'));
+            } catch (error) {
+                console.error('❌ 자동 저장 실패:', error);
+            }
+        }
+
+        // localStorage에서 불러오기
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('hanpass_2026_data');
+                if (savedData) {
+                    data = JSON.parse(savedData);
+                    const lastSaved = localStorage.getItem('hanpass_2026_lastSaved');
+                    console.log('✅ 저장된 데이터 불러오기 완료');
+                    if (lastSaved) {
+                        console.log('   마지막 저장:', new Date(lastSaved).toLocaleString('ko-KR'));
+                    }
+                }
+            } catch (error) {
+                console.error('❌ 데이터 불러오기 실패:', error);
+            }
+        }
+
+        // 원본 데이터로 초기화
+        function resetToOriginal() {
+            if (confirm('⚠️ 모든 수정 내용을 삭제하고 원본 데이터로 초기화하시겠습니까?')) {
+                localStorage.removeItem('hanpass_2026_data');
+                localStorage.removeItem('hanpass_2026_lastSaved');
+                location.reload();
+            }
+        }
+
+        // 필터 생성
+        function createFilters() {
+            // KPI 필터
+            const kpiFilters = document.getElementById('kpi-filters');
+            data.kpis.forEach(kpi => {
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" value="${kpi.name}" checked onchange="applyFilters()">
+                    <span>${kpi.name}</span>
+                `;
+                kpiFilters.appendChild(label);
+            });
+
+            // 부문 필터
+            const divisions = [...new Set(data.kpis.flatMap(k => k.projects.map(p => p.division)))];
+            const divisionFilters = document.getElementById('division-filters');
+            divisions.forEach(div => {
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" value="${div}" checked onchange="applyFilters()">
+                    <span>${div}</span>
+                `;
+                divisionFilters.appendChild(label);
+            });
+
+            // 상태 필터
+            const statuses = [...new Set(data.kpis.flatMap(k => k.projects.map(p => p.status)))];
+            const statusFilters = document.getElementById('status-filters');
+            statuses.forEach(status => {
+                const label = document.createElement('label');
+                label.innerHTML = `
+                    <input type="checkbox" value="${status}" checked onchange="applyFilters()">
+                    <span>${status}</span>
+                `;
+                statusFilters.appendChild(label);
+            });
+        }
+
+        // 테이블 렌더링
+        function renderTable() {
+            const tbody = document.getElementById('tree-body');
+            tbody.innerHTML = '';
+
+            // 루트 행
+            const rootRow = createRow({
+                name: data.name,
+                level: 0,
+                id: 'root',
+                hasChildren: true
+            });
+            tbody.appendChild(rootRow);
+
+            // KPI 행들
+            data.kpis.forEach((kpi, kpiIndex) => {
+                const kpiId = `kpi-${kpiIndex}`;
+                const kpiRow = createRow({
+                    name: kpi.name,
+                    level: 1,
+                    id: kpiId,
+                    parentId: 'root',
+                    hasChildren: true,
+                    count: kpi.count,
+                    kpiName: kpi.name
+                });
+                tbody.appendChild(kpiRow);
+
+                // 프로젝트 행들
+                kpi.projects.forEach((project, projectIndex) => {
+                    const projectId = `project-${kpiIndex}-${projectIndex}`;
+                    const projectRow = createRow({
+                        name: project.name,
+                        level: 2,
+                        id: projectId,
+                        parentId: kpiId,
+                        hasChildren: false,
+                        project: project,
+                        kpiName: kpi.name
+                    });
+                    tbody.appendChild(projectRow);
+                });
+            });
+
+            applyFilters();
+        }
+
+        // 행 생성
+        function createRow(options) {
+            const { name, level, id, parentId, hasChildren, count, project, kpiName } = options;
+            const tr = document.createElement('tr');
+            tr.className = `level-${level}`;
+            tr.dataset.id = id;
+            tr.dataset.level = level;
+            tr.dataset.parentId = parentId || '';
+            
+            if (project) {
+                tr.dataset.division = project.division;
+                tr.dataset.status = project.status;
+                tr.dataset.kpi = kpiName;
+            } else if (kpiName) {
+                tr.dataset.kpi = kpiName;
+            }
+
+            // 항목명 열
+            const nameCell = document.createElement('td');
+            nameCell.className = `indent-${level}`;
+            
+            let nameHTML = '';
+            if (hasChildren) {
+                nameHTML += `<span class="toggle-icon" onclick="toggleNode('${id}')">▶</span>`;
+            }
+            nameHTML += `<strong>${name}</strong>`;
+            
+            if (count) {
+                nameHTML += `<span class="badge badge-count">${count}개</span>`;
+            }
+            
+            nameCell.innerHTML = nameHTML;
+            tr.appendChild(nameCell);
+
+            // 코드 열
+            const codeCell = document.createElement('td');
+            codeCell.textContent = project ? project.code : '-';
+            tr.appendChild(codeCell);
+
+            // 부문 열
+            const divisionCell = document.createElement('td');
+            if (project) {
+                divisionCell.innerHTML = `<span class="badge badge-division-${project.division}">${project.division}</span>`;
+            } else {
+                divisionCell.textContent = '-';
+            }
+            tr.appendChild(divisionCell);
+
+            // 상태 열
+            const statusCell = document.createElement('td');
+            if (project) {
+                statusCell.innerHTML = `<span class="badge badge-status-${project.status}">${project.status}</span>`;
+            } else {
+                statusCell.textContent = '-';
+            }
+            tr.appendChild(statusCell);
+
+            // 담당자 열
+            const ownerCell = document.createElement('td');
+            ownerCell.textContent = project ? project.owner : '-';
+            tr.appendChild(ownerCell);
+
+            // 진행률 열
+            const progressCell = document.createElement('td');
+            if (project) {
+                progressCell.innerHTML = `
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${project.progress}%">${project.progress}%</div>
+                    </div>
+                `;
+            } else {
+                progressCell.textContent = '-';
+            }
+            tr.appendChild(progressCell);
+
+            // 마감일 열
+            const deadlineCell = document.createElement('td');
+            deadlineCell.textContent = project ? project.deadline : '-';
+            tr.appendChild(deadlineCell);
+
+            return tr;
+        }
+
+        // 노드 토글
+        function toggleNode(nodeId) {
+            if (expandedNodes.has(nodeId)) {
+                expandedNodes.delete(nodeId);
+                collapseNode(nodeId);
+            } else {
+                expandedNodes.add(nodeId);
+                expandNode(nodeId);
+            }
+            updateToggleIcon(nodeId);
+        }
+
+        function expandNode(nodeId) {
+            const rows = document.querySelectorAll(`tr[data-parent-id="${nodeId}"]`);
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+        }
+
+        function collapseNode(nodeId) {
+            const rows = document.querySelectorAll(`tr[data-parent-id="${nodeId}"]`);
+            rows.forEach(row => {
+                row.style.display = 'none';
+                // 자식도 접기
+                const childId = row.dataset.id;
+                collapseNode(childId);
+                expandedNodes.delete(childId);
+                updateToggleIcon(childId);
+            });
+        }
+
+        function updateToggleIcon(nodeId) {
+            const row = document.querySelector(`tr[data-id="${nodeId}"]`);
+            if (row) {
+                const icon = row.querySelector('.toggle-icon');
+                if (icon) {
+                    icon.textContent = expandedNodes.has(nodeId) ? '▼' : '▶';
+                }
+            }
+        }
+
+        // 전체 펼치기
+        function expandAll() {
+            const allRows = document.querySelectorAll('tr[data-id]');
+            allRows.forEach(row => {
+                const id = row.dataset.id;
+                expandedNodes.add(id);
+                updateToggleIcon(id);
+            });
+            applyFilters();
+        }
+
+        // 전체 접기
+        function collapseAll() {
+            expandedNodes.clear();
+            expandedNodes.add('root'); // 루트만 펼침
+            
+            const allRows = document.querySelectorAll('tr[data-id]');
+            allRows.forEach(row => {
+                const id = row.dataset.id;
+                updateToggleIcon(id);
+            });
+            applyFilters();
+        }
+
+        // 필터 적용
+        function applyFilters() {
+            const selectedKpis = Array.from(document.querySelectorAll('#kpi-filters input:checked')).map(cb => cb.value);
+            const selectedDivisions = Array.from(document.querySelectorAll('#division-filters input:checked')).map(cb => cb.value);
+            const selectedStatuses = Array.from(document.querySelectorAll('#status-filters input:checked')).map(cb => cb.value);
+            const searchTerm = document.getElementById('search-box').value.toLowerCase();
+
+            const allRows = document.querySelectorAll('tbody tr');
+            let visibleCount = 0;
+
+            allRows.forEach(row => {
+                const level = parseInt(row.dataset.level);
+                const parentId = row.dataset.parentId;
+                
+                let shouldShow = true;
+
+                // 레벨 0 (루트)는 항상 표시
+                if (level === 0) {
+                    row.style.display = '';
+                    return;
+                }
+
+                // 레벨 1 (KPI)
+                if (level === 1) {
+                    const kpiName = row.querySelector('strong').textContent;
+                    if (!selectedKpis.includes(kpiName)) {
+                        shouldShow = false;
+                    }
+                }
+
+                // 레벨 2 (프로젝트)
+                if (level === 2) {
+                    const kpi = row.dataset.kpi;
+                    const division = row.dataset.division;
+                    const status = row.dataset.status;
+                    const rowText = row.textContent.toLowerCase();
+
+                    if (!selectedKpis.includes(kpi) ||
+                        !selectedDivisions.includes(division) ||
+                        !selectedStatuses.includes(status)) {
+                        shouldShow = false;
+                    }
+
+                    if (searchTerm && !rowText.includes(searchTerm)) {
+                        shouldShow = false;
+                    }
+
+                    if (shouldShow) {
+                        visibleCount++;
+                    }
+                }
+
+                // 부모가 펼쳐져 있는지 확인
+                if (shouldShow && parentId && !expandedNodes.has(parentId)) {
+                    shouldShow = false;
+                }
+
+                row.style.display = shouldShow ? '' : 'none';
+            });
+
+            updateStats();
+        }
+
+        // 통계 업데이트
+        function updateStats() {
+            document.getElementById('total-kpis').textContent = data.kpis.length;
+            const totalProjects = data.kpis.reduce((sum, kpi) => sum + kpi.count, 0);
+            document.getElementById('total-projects').textContent = totalProjects;
+            
+            const visibleProjects = document.querySelectorAll('tbody tr.level-2:not([style*="display: none"])').length;
+            document.getElementById('visible-projects').textContent = visibleProjects;
+        }
+
+        // 필터 초기화
+        function resetFilters() {
+            document.querySelectorAll('.filter-group input[type="checkbox"]').forEach(cb => {
+                cb.checked = true;
+            });
+            document.getElementById('search-box').value = '';
+            applyFilters();
+        }
+
+        // CSV 내보내기
+        function exportToCSV() {
+            let csv = 'KPI,프로젝트명,코드,부문,상태,담당자,진행률,마감일,KPI 기여도\n';
+            
+            data.kpis.forEach(kpi => {
+                kpi.projects.forEach(project => {
+                    csv += `"${kpi.name}","${project.name}","${project.code}","${project.division}","${project.status}","${project.owner}",${project.progress},"${project.deadline}","${project.kpi_detail}"\n`;
+                });
+            });
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '한패스_2026_경영기획.csv';
+            link.click();
+        }
+
+        // 초기화 실행
+        init();
+    </script>
+</body>
+</html>
