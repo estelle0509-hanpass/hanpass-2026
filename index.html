@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HanPass 2026 Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px 40px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .vision-text {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #667eea;
+      text-align: center;
+      padding: 30px 40px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-bottom: 3px solid #667eea;
+      letter-spacing: 1px;
+    }
+
+    .tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e0e0e0;
+      padding: 0 40px;
+    }
+
+    .tab {
+      padding: 15px 30px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab:hover {
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 40px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .kpi-group {
+      margin-bottom: 30px;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .kpi-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kpi-header h2 {
+      font-size: 1.5em;
+    }
+
+    .kpi-details {
+      display: none;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    .kpi-details.active {
+      display: block;
+    }
+
+    .detail-section {
+      margin-bottom: 25px;
+    }
+
+    .detail-section h3 {
+      font-size: 1.2em;
+      color: #667eea;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #667eea;
+      color: white;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    td {
+      font-size: 0.95em;
+    }
+
+    tr:hover {
+      background: #f5f7fa;
+    }
+
+    .edit-icon {
+      cursor: pointer;
+      color: #667eea;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    .edit-icon:hover {
+      color: #764ba2;
+    }
+
+    .changed-field {
+      background-color: #e3f2fd !important;
+      color: #1976d2 !important;
+      font-weight: 600;
+      padding: 10px 15px !important;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-content h2 {
+      margin-bottom: 30px;
+      color: #667eea;
+      font-size: 1.8em;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group input:disabled {
+      background: #f5f5f5;
+      cursor: not-allowed;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+
+    .update-list {
+      display: grid;
+      gap: 20px;
+    }
+
+    .update-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid #667eea;
+    }
+
+    .update-card h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .update-time {
+      font-size: 0.9em;
+      color: #999;
+      font-weight: normal;
+    }
+
+    .update-content {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .notion-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .notion-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      header h1 {
+        font-size: 1.8em;
+      }
+
+      .tabs {
+        padding: 0 20px;
+      }
+
+      .tab {
+        padding: 12px 20px;
+        font-size: 1em;
+      }
+
+      .tab-content {
+        padding: 20px;
+      }
+
+      table {
+        font-size: 0.9em;
+      }
+
+      th, td {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 HanPass 2026 Dashboard</h1>
+    </header>
+
+    <div class="vision-text">
+      속도로 장악하고 격차로 끝낸다
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('all')">📊 전체 보기</button>
+      <button class="tab" onclick="switchTab('updates')">📝 업데이트 모아보기</button>
+    </div>
+
+    <div id="all-tab" class="tab-content active"></div>
+    <div id="updates-tab" class="tab-content"></div>
+  </div>
+
+  <!-- 수정 모달 -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <h2>✏️ 프로젝트 수정</h2>
+      <form id="edit-form">
+        <input type="hidden" id="edit-project-id">
+        
+        <div class="form-group">
+          <label>프로젝트명 (읽기 전용)</label>
+          <input type="text" id="edit-name" disabled>
+        </div>
+
+        <div class="form-group">
+          <label>목표</label>
+          <textarea id="edit-goal" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>국가</label>
+          <select id="edit-country" multiple size="5">
+            <option value="Korea">Korea</option>
+            <option value="Japan">Japan</option>
+            <option value="Vietnam">Vietnam</option>
+            <option value="Thailand">Thailand</option>
+            <option value="Indonesia">Indonesia</option>
+            <option value="Philippines">Philippines</option>
+            <option value="Singapore">Singapore</option>
+            <option value="Malaysia">Malaysia</option>
+            <option value="USA">USA</option>
+            <option value="Global">Global</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>부서</label>
+          <select id="edit-division">
+            <option value="">선택하세요</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Product">Product</option>
+            <option value="Tech">Tech</option>
+            <option value="Business">Business</option>
+            <option value="Operations">Operations</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>담당자 (읽기 전용)</label>
+          <input type="text" id="edit-owner" disabled>
+        </div>
+
+        <div class="form-group">
+          <label>상태</label>
+          <select id="edit-status">
+            <option value="시작 전">시작 전</option>
+            <option value="진행중">진행중</option>
+            <option value="완료">완료</option>
+            <option value="보류">보류</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>진행률 (%)</label>
+          <input type="number" id="edit-progress" min="0" max="100">
+        </div>
+
+        <div class="form-group">
+          <label>마감일</label>
+          <input type="date" id="edit-deadline">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">취소</button>
+          <button type="submit" class="btn btn-primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://hanpass-2026-backend.vercel.app/api';
+    let allData = {};
+    let previousData = {};
+
+    // 탭 전환
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      if (tabName === 'all') {
+        document.querySelector('.tab:nth-child(1)').classList.add('active');
+        document.getElementById('all-tab').classList.add('active');
+      } else if (tabName === 'updates') {
+        document.querySelector('.tab:nth-child(2)').classList.add('active');
+        document.getElementById('updates-tab').classList.add('active');
+        loadUpdates();
+      }
+    }
+
+    // 데이터 로드
+    async function loadData() {
+      try {
+        const response = await fetch(`${API_URL}?type=all&includeContent=true`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        });
+        const data = await response.json();
+        
+        // 이전 데이터 로드 (localStorage)
+        const savedData = localStorage.getItem('previousData');
+        if (savedData) {
+          previousData = JSON.parse(savedData);
+        }
+
+        allData = data;
+        
+        // 현재 데이터를 이전 데이터로 저장
+        localStorage.setItem('previousData', JSON.stringify(data));
+
+        renderAllView(data);
+      } catch (error) {
+        console.error('데이터 로드 실패:', error);
+      }
+    }
+
+    // 7일 이내 변경 확인 (노션 lastEditedTime 기준)
+    function isWithin7Days(lastEditedTime) {
+      const now = new Date();
+      const edited = new Date(lastEditedTime);
+      const diffDays = (now - edited) / (1000 * 60 * 60 * 24);
+      return diffDays <= 7;
+    }
+
+    // 필드 변경 감지 (7일 이내만 하이라이트)
+    function hasChanged(projectId, field, currentValue) {
+      if (!previousData.projects) return false;
+      
+      const prevProject = previousData.projects.find(p => p.id === projectId);
+      if (!prevProject) return false;
+
+      // 7일 이내 수정된 경우만 체크
+      const project = allData.projects.find(p => p.id === projectId);
+      if (!project || !isWithin7Days(project.lastEditedTime)) return false;
+
+      return prevProject[field] !== currentValue;
+    }
+
+    // 시간 차이 계산
+    function getTimeAgo(dateString) {
+      const now = new Date();
+      const past = new Date(dateString);
+      const diffMs = now - past;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 60) return `${diffMins}분 전`;
+      if (diffHours < 24) return `${diffHours}시간 전`;
+      return `${diffDays}일 전`;
+    }
+
+    // 전체 보기 렌더링
+    function renderAllView(data) {
+      const container = document.getElementById('all-tab');
+      const { kpis, projects } = data;
+
+      // KPI별 그룹화
+      const grouped = {};
+      kpis.forEach(kpi => {
+        grouped[kpi.id] = { ...kpi, details: {} };
+      });
+
+      // 1. Relations 기반 매칭
+      const assignedProjects = new Set();
+      kpis.forEach(kpi => {
+        if (kpi.projects && Array.isArray(kpi.projects)) {
+          kpi.projects.forEach(projectId => {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+              const detailName = project.kpiDetail || '미분류';
+              if (!grouped[kpi.id].details[detailName]) {
+                grouped[kpi.id].details[detailName] = [];
+              }
+              grouped[kpi.id].details[detailName].push(project);
+              assignedProjects.add(project.id);
+            }
+          });
+        }
+      });
+
+      // 2. Fallback: project.kpi 필드 매칭
+      projects.forEach(project => {
+        if (assignedProjects.has(project.id)) return;
+        
+        if (project.kpi) {
+          const kpi = kpis.find(k => k.id === project.kpi);
+          if (kpi) {
+            const detailName = project.kpiDetail || '미분류';
+            if (!grouped[kpi.id].details[detailName]) {
+              grouped[kpi.id].details[detailName] = [];
+            }
+            grouped[kpi.id].details[detailName].push(project);
+            assignedProjects.add(project.id);
+          }
+        }
+      });
+
+      // 3. 미분류 프로젝트
+      const unassigned = projects.filter(p => !assignedProjects.has(p.id));
+      if (unassigned.length > 0) {
+        grouped['unassigned'] = {
+          id: 'unassigned',
+          name: '미분류 프로젝트',
+          details: { '미분류': unassigned }
+        };
+      }
+
+      // KPI 정렬
+      const sortedKpis = Object.values(grouped).sort((a, b) => {
+        const aMatch = a.name.match(/^([A-Z])\.(.+)/);
+        const bMatch = b.name.match(/^([A-Z])\.(.+)/);
+        
+        if (aMatch && bMatch) {
+          return aMatch[1].localeCompare(bMatch[1]);
+        }
+        return a.name.localeCompare(b.name, 'ko');
+      });
+
+      // HTML 생성
+      let html = '';
+      sortedKpis.forEach(kpi => {
+        const totalProjects = Object.values(kpi.details).reduce((sum, arr) => sum + arr.length, 0);
+        
+        html += `
+          <div class="kpi-group">
+            <div class="kpi-header" onclick="toggleKpi('${kpi.id}')">
+              <h2>${kpi.name}</h2>
+              <span>총 ${totalProjects}개 프로젝트</span>
+            </div>
+            <div id="kpi-${kpi.id}" class="kpi-details">
+        `;
+
+        Object.entries(kpi.details).forEach(([detailName, detailProjects]) => {
+          html += `
+            <div class="detail-section">
+              <h3>${detailName} (${detailProjects.length}개)</h3>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 20%">프로젝트명</th>
+                      <th style="width: 15%">목표</th>
+                      <th style="width: 10%">국가</th>
+                      <th style="width: 8%">부서</th>
+                      <th style="width: 8%">담당자</th>
+                      <th style="width: 8%">상태</th>
+                      <th style="width: 8%">진행률</th>
+                      <th style="width: 10%">마감일</th>
+                      <th style="width: 5%">수정</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+          `;
+
+          detailProjects.forEach(project => {
+            const changedGoal = hasChanged(project.id, 'goal', project.goal) ? 'changed-field' : '';
+            const changedCountry = hasChanged(project.id, 'country', project.country) ? 'changed-field' : '';
+            const changedDivision = hasChanged(project.id, 'division', project.division) ? 'changed-field' : '';
+            const changedStatus = hasChanged(project.id, 'status', project.status) ? 'changed-field' : '';
+            const changedProgress = hasChanged(project.id, 'progress', project.progress) ? 'changed-field' : '';
+            const changedDeadline = hasChanged(project.id, 'deadline', project.deadline) ? 'changed-field' : '';
+
+            html += `
+              <tr>
+                <td>${project.name || '-'}</td>
+                <td class="${changedGoal}">${project.goal || '-'}</td>
+                <td class="${changedCountry}">${project.country || '-'}</td>
+                <td class="${changedDivision}">${project.division || '-'}</td>
+                <td>${project.owner || '-'}</td>
+                <td class="${changedStatus}">${project.status || '-'}</td>
+                <td class="${changedProgress}">${project.progress || '-'}%</td>
+                <td class="${changedDeadline}">${project.deadline || '-'}</td>
+                <td><span class="edit-icon" onclick="openEditModal('${project.id}')">✏️</span></td>
+              </tr>
+            `;
+          });
+
+          html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // KPI 펼치기/접기
+    function toggleKpi(kpiId) {
+      const element = document.getElementById(`kpi-${kpiId}`);
+      element.classList.toggle('active');
+    }
+
+    // 업데이트 모아보기
+    async function loadUpdates() {
+      const container = document.getElementById('updates-tab');
+      const { projects } = allData;
+
+      // 최근 7일 이내 업데이트된 프로젝트
+      const recentProjects = projects
+        .filter(p => isWithin7Days(p.lastEditedTime))
+        .sort((a, b) => new Date(b.lastEditedTime) - new Date(a.lastEditedTime));
+
+      let html = '<div class="update-list">';
+
+      for (const project of recentProjects) {
+        const timeAgo = getTimeAgo(project.lastEditedTime);
+        
+        html += `
+          <div class="update-card">
+            <h3>
+              ${project.name}
+              <span class="update-time">${timeAgo}</span>
+            </h3>
+            <div class="update-content">
+              <p><strong>목표:</strong> ${project.goal || '-'}</p>
+              <p><strong>상태:</strong> ${project.status || '-'} | <strong>진행률:</strong> ${project.progress || 0}%</p>
+              ${project.content ? `<div style="margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px;">${project.content}</div>` : ''}
+              <a href="${project.url}" target="_blank" class="notion-link">노션에서 전체 보기 →</a>
+            </div>
+          </div>
+        `;
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    // 수정 모달 열기
+    function openEditModal(projectId) {
+      const project = allData.projects.find(p => p.id === projectId);
+      if (!project) return;
+
+      document.getElementById('edit-project-id').value = project.id;
+      document.getElementById('edit-name').value = project.name || '';
+      document.getElementById('edit-goal').value = project.goal || '';
+      document.getElementById('edit-division').value = project.division || '';
+      document.getElementById('edit-owner').value = project.owner || '';
+      document.getElementById('edit-status').value = project.status || '';
+      document.getElementById('edit-progress').value = project.progress || 0;
+      document.getElementById('edit-deadline').value = project.deadline || '';
+
+      // 국가 다중 선택
+      const countries = (project.country || '').split(',').map(c => c.trim());
+      const countrySelect = document.getElementById('edit-country');
+      Array.from(countrySelect.options).forEach(option => {
+        option.selected = countries.includes(option.value);
+      });
+
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    // 수정 모달 닫기
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('active');
+    }
+
+    // 프로젝트 수정 저장
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const projectId = document.getElementById('edit-project-id').value;
+      const goal = document.getElementById('edit-goal').value;
+      const countryOptions = document.getElementById('edit-country').selectedOptions;
+      const country = Array.from(countryOptions).map(o => o.value).join(', ');
+      const division = document.getElementById('edit-division').value;
+      const status = document.getElementById('edit-status').value;
+      const progress = parseInt(document.getElementById('edit-progress').value);
+      const deadline = document.getElementById('edit-deadline').value;
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId,
+            goal,
+            country,
+            division,
+            status,
+            progress,
+            deadline
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('프로젝트가 성공적으로 수정되었습니다!');
+          closeEditModal();
+          loadData(); // 데이터 다시 로드
+        } else {
+          alert('수정 실패: ' + result.error);
+        }
+      } catch (error) {
+        console.error('수정 실패:', error);
+        alert('수정 중 오류가 발생했습니다.');
+      }
+    });
+
+    // 모달 외부 클릭 시 닫기
+    document.getElementById('edit-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'edit-modal') {
+        closeEditModal();
+      }
+    });
+
+    // 초기 로드
+    loadData();
+  </script>
+</body>
+</html>            
