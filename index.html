@@ -402,7 +402,7 @@ function showMobileKPIDetails(kpiId) {
   html += '</div><div class="mobile-list">';
   details.forEach(function(detail) {
     var detailProjects = detailGroups[detail];
-    html += '<div class="mobile-list-item" onclick="showMobileProjects('' + kpiId + '', '' + detail.replace(/'/g, "\'") + '')">';
+    html += '<div class="mobile-list-item" data-kpi-id="' + kpiId + '" data-detail-name="' + detail.replace(/"/g, '&quot;') + '" onclick="showMobileProjects(this.getAttribute(\'data-kpi-id\'), this.getAttribute(\'data-detail-name\'))">';
     html += '<div class="mobile-item-title">' + detail + '</div>';
     html += '<div class="mobile-item-count">' + detailProjects.length + '개 프로젝트</div>';
     html += '</div>';
