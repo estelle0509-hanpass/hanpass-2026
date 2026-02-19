@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HanPass 2026 Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      color: #2c3e50;
+      font-size: 1.5em;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      background: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #1976D2;
+    }
+
+    .timestamp {
+      color: #999;
+      font-size: 0.85em;
+    }
+
+    .vision-banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.1em;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    .tab {
+      background: transparent;
+      border: none;
+      padding: 12px 24px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: #2196F3;
+      border-bottom-color: #2196F3;
+    }
+
+    .tab:hover {
+      color: #2196F3;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ==================== PC UI ==================== */
+    .pc-ui {
+      display: block;
+    }
+
+    .kpi-group {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .kpi-header:hover {
+      background: #f8f9fa;
+    }
+
+    .kpi-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #2c3e50;
+    }
+
+    .kpi-count {
+      background: #2196F3;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+
+    .kpi-arrow {
+      font-size: 1.2em;
+      color: #666;
+      transition: transform 0.3s;
+      display: inline-block;
+    }
+
+    .kpi-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .kpi-details.active {
+      max-height: 10000px;
+      transition: max-height 0.5s ease-in;
+    }
+
+    .kpi-details.active + .kpi-header .kpi-arrow {
+      transform: rotate(180deg);
+    }
+
+    .detail-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .detail-header:hover {
+      background: #e9ecef;
+    }
+
+    .detail-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .detail-pin {
+      font-size: 1.2em;
+    }
+
+    .detail-title {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .detail-count {
+      color: #2196F3;
+      font-weight: 600;
+      margin-right: 10px;
+    }
+
+    .detail-arrow {
+      font-size: 1.1em;
+      color: #888;
+      transition: transform 0.3s;
+      display: inline-block;
+    }
+
+    .detail-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .detail-content.active {
+      max-height: 5000px;
+      transition: max-height 0.5s ease-in;
+    }
+
+    .detail-content.active + .detail-header .detail-arrow {
+      transform: rotate(180deg);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    th {
+      background: #f8f9fa;
+      color: #555;
+      font-weight: 600;
+      font-size: 0.9em;
+    }
+
+    td {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .project-link {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .project-link:hover {
+      color: #1976D2;
+      text-decoration: underline;
+    }
+
+    /* ==================== Mobile UI ==================== */
+    .mobile-ui {
+      display: none;
+    }
+
+    .mobile-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 100;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 0 0 12px 12px;
+    }
+
+    .card-stack {
+      position: relative;
+      height: calc(100vh - 250px);
+      min-height: 400px;
+      padding: 20px 10px;
+    }
+
+    .project-card {
+      position: absolute;
+      width: calc(100% - 40px);
+      left: 20px;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .project-card:active {
+      cursor: grabbing;
+    }
+
+    .project-card.swiping {
+      transition: none;
+    }
+
+    .project-card.removing {
+      animation: swipeOut 0.3s ease-out forwards;
+    }
+
+    @keyframes swipeOut {
+      to {
+        transform: translateX(150%) rotate(20deg);
+        opacity: 0;
+      }
+    }
+
+    .card-level {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .level-kpi {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .level-detail {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .level-project {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+
+    .card-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .card-field {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
+
+    .card-label {
+      font-weight: 600;
+      color: #666;
+      min-width: 70px;
+    }
+
+    .card-value {
+      color: #333;
+      flex: 1;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .card-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .card-btn-primary {
+      background: #2196F3;
+      color: white;
+    }
+
+    .card-btn-primary:active {
+      background: #1976D2;
+    }
+
+    .card-btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+    }
+
+    .card-btn-secondary:active {
+      background: #e0e0e0;
+    }
+
+    .swipe-hint {
+      text-align: center;
+      color: #999;
+      font-size: 0.85em;
+      margin-top: 16px;
+    }
+
+    .progress-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ddd;
+      transition: all 0.3s;
+    }
+
+    .progress-dot.active {
+      background: #2196F3;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* ==================== Modal ==================== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      color: #2c3e50;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    .form-group input[readonly] {
+      background: #f5f5f5;
+      color: #999;
+    }
+
+    .form-group select[multiple] {
+      height: 120px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 30px;
+    }
+
+    .btn-primary {
+      background: #2196F3;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: #1976D2;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #666;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .error {
+      background: #ffebee;
+      border: 1px solid #ef5350;
+      border-radius: 8px;
+      padding: 15px;
+      color: #c62828;
+      margin: 20px 0;
+    }
+
+    /* ==================== Responsive ==================== */
+    @media (max-width: 768px) {
+      .pc-ui {
+        display: none !important;
+      }
+
+      .mobile-ui {
+        display: block !important;
+      }
+
+      .container {
+        padding: 10px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 15px;
+      }
+
+      header h1 {
+        font-size: 1.2em;
+      }
+
+      .header-right {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        font-size: 0.8em;
+        padding: 8px 12px;
+      }
+
+      .vision-banner {
+        font-size: 1em;
+        padding: 12px;
+      }
+
+      .tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tab {
+        white-space: nowrap;
+        font-size: 0.9em;
+        padding: 10px 15px;
+      }
+
+      .modal-content {
+        padding: 20px;
+        width: 95%;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .pc-ui {
+        display: block !important;
+      }
+
+      .mobile-ui {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 HanPass 2026 Dashboard</h1>
+      <div class="header-right">
+        <button class="btn pc-only" onclick="toggleAllKpis(true)">📂 전체 열기</button>
+        <button class="btn pc-only" onclick="toggleAllKpis(false)">📁 전체 닫기</button>
+        <button class="btn" onclick="loadData()">🔄 새로고침</button>
+        <span class="timestamp" id="timestamp"></span>
+      </div>
+    </header>
+
+    <div class="vision-banner">
+      속도로 장악하고 격차로 끝낸다
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('all')">📊 전체 보기</button>
+      <button class="tab" onclick="switchTab('updates')">📝 업데이트 모아보기</button>
+    </div>
+
+    <!-- PC UI -->
+    <div id="all-tab-pc" class="tab-content active pc-ui">
+      <div class="loading">데이터를 불러오는 중...</div>
+    </div>
+
+    <!-- Mobile UI -->
+    <div id="all-tab-mobile" class="tab-content active mobile-ui">
+      <div class="loading">데이터를 불러오는 중...</div>
+    </div>
+
+    <div id="updates-tab" class="tab-content">
+      <div class="loading">업데이트 내역을 불러오는 중...</div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>프로젝트 수정</h2>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="edit-form" onsubmit="handleEditSubmit(event)">
+        <input type="hidden" id="edit-project-id">
+        
+        <div class="form-group">
+          <label>프로젝트명 (읽기 전용)</label>
+          <input type="text" id="edit-name" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>목표</label>
+          <input type="text" id="edit-goal">
+        </div>
+
+        <div class="form-group">
+          <label>국가 (다중선택)</label>
+          <select id="edit-country" multiple></select>
+        </div>
+
+        <div class="form-group">
+          <label>부서</label>
+          <select id="edit-division"></select>
+        </div>
+
+        <div class="form-group">
+          <label>담당자 (읽기 전용)</label>
+          <input type="text" id="edit-owner" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>상태</label>
+          <select id="edit-status"></select>
+        </div>
+
+        <div class="form-group">
+          <label>진행률 (%)</label>
+          <input type="number" id="edit-progress" min="0" max="100">
+        </div>
+
+        <div class="form-group">
+          <label>마감일</label>
+          <input type="date" id="edit-deadline">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeEditModal()">취소</button>
+          <button type="submit" class="btn-primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    var API_URL = 'https://hanpass-2026-backend.vercel.app/api';
+    var allData = { kpis: [], projects: [], schema: {} };
+    var previousData = null;
+    var schema = {};
+    var isMobile = window.innerWidth <= 768;
+    var currentCardIndex = 0;
+    var flattenedProjects = [];
+
+    // Device detection
+    function detectDevice() {
+      isMobile = window.innerWidth <= 768;
+    }
+
+    window.addEventListener('resize', detectDevice);
+
+    function updateTimestamp() {
+      var now = new Date();
+      var timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+      document.getElementById('timestamp').textContent = '마지막 동기화: 오늘 ' + timeStr;
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+      
+      if (tabName === 'all') {
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        if (isMobile) {
+          document.getElementById('all-tab-mobile').classList.add('active');
+        } else {
+          document.getElementById('all-tab-pc').classList.add('active');
+        }
+      } else if (tabName === 'updates') {
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('updates-tab').classList.add('active');
+        loadUpdates();
+      }
+    }
+
+    async function loadData() {
+      var containerPC = document.getElementById('all-tab-pc');
+      var containerMobile = document.getElementById('all-tab-mobile');
+      
+      containerPC.innerHTML = '<div class="loading">데이터를 불러오는 중...</div>';
+      containerMobile.innerHTML = '<div class="loading">데이터를 불러오는 중...</div>';
+
+      try {
+        var response = await fetch(API_URL + '?type=all&includeContent=true', {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        });
+
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+
+        var apiResponse = await response.json();
+        
+        if (!apiResponse.success) {
+          throw new Error('데이터 로드 실패');
+        }
+
+        var data = apiResponse.data;
+        schema = data.schema || {};
+
+        var savedData = localStorage.getItem('previousData');
+        if (savedData) {
+          previousData = JSON.parse(savedData);
+        }
+
+        allData = data;
+        localStorage.setItem('previousData', JSON.stringify(data));
+
+        // Sort data
+        allData.kpis.sort(function(a, b) { return a.name.localeCompare(b.name, 'ko'); });
+        allData.projects.sort(function(a, b) { return a.name.localeCompare(b.name, 'ko'); });
+
+        renderPCView(data);
+        renderMobileView(data);
+        updateTimestamp();
+      } catch (error) {
+        console.error('❌ 데이터 로드 실패:', error);
+        var errorHTML = '<div class="error"><strong>데이터 로드 실패</strong><br>' + error.message + '<br><br><button class="btn" onclick="loadData()">다시 시도</button></div>';
+        containerPC.innerHTML = errorHTML;
+        containerMobile.innerHTML = errorHTML;
+      }
+    }
+
+    // PC View Rendering
+    function renderPCView(data) {
+      var container = document.getElementById('all-tab-pc');
+      var kpis = data.kpis;
+      var projects = data.projects;
+
+      if (!kpis || !projects) {
+        container.innerHTML = '<div class="loading">데이터가 없습니다</div>';
+        return;
+      }
+
+      var html = '<div class="kpi-list">';
+
+      kpis.forEach(function(kpi) {
+        var kpiProjects = projects.filter(function(p) { 
+          return kpi.projects.some(function(rel) { return rel.id === p.id; });
+        });
+        
+        html += '<div class="kpi-group"><div class="kpi-header" onclick="toggleKpi(\'' + kpi.id + '\')"><div class="kpi-title">' + kpi.name + '</div><div style="display: flex; align-items: center;"><div class="kpi-count">' + kpiProjects.length + '개 프로젝트</div><div class="kpi-arrow">▼</div></div></div><div id="kpi-' + kpi.id + '" class="kpi-details">';
+
+        var detailGroups = {};
+        kpiProjects.forEach(function(project) {
+          var detail = project.kpiDetail || '기타';
+          if (!detailGroups[detail]) {
+            detailGroups[detail] = [];
+          }
+          detailGroups[detail].push(project);
+        });
+
+        // Sort details
+        var sortedDetails = Object.keys(detailGroups).sort(function(a, b) { return a.localeCompare(b, 'ko'); });
+
+        sortedDetails.forEach(function(detail) {
+          var detailProjects = detailGroups[detail];
+          var detailId = 'detail-' + kpi.id + '-' + detail.replace(/\s+/g, '-');
+          
+          html += '<div class="detail-section"><div class="detail-header" onclick="toggleDetail(\'' + detailId + '\')"><div class="detail-left"><span class="detail-pin">📍</span><span class="detail-title">' + detail + '</span></div><div style="display: flex; align-items: center;"><span class="detail-count">' + detailProjects.length + '개</span><span class="detail-arrow">▼</span></div></div><div id="' + detailId + '" class="detail-content active"><div class="table-container"><table><thead><tr><th style="width: 20%">프로젝트명</th><th style="width: 15%">목표</th><th style="width: 10%">국가</th><th style="width: 8%">부서</th><th style="width: 8%">담당자</th><th style="width: 8%">상태</th><th style="width: 8%">진행률</th><th style="width: 10%">마감일</th><th style="width: 5%">수정</th></tr></thead><tbody>';
+
+          detailProjects.forEach(function(project) {
+            html += '<tr><td><a href="' + (project.link || '#') + '" target="_blank" class="project-link">' + (project.name || '-') + '</a></td><td>' + (project.goal || '-') + '</td><td>' + (project.country || '-') + '</td><td>' + (project.division || '-') + '</td><td>' + (project.owner || '-') + '</td><td>' + (project.status || '-') + '</td><td>' + (project.progress || 0) + '%</td><td>' + (project.deadline || '-') + '</td><td><span class="edit-icon" onclick="openEditModal(\'' + project.id + '\')">✏️</span></td></tr>';
+          });
+
+          html += '</tbody></table></div></div></div>';
+        });
+
+        html += '</div></div>';
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    // Mobile View Rendering
+    function renderMobileView(data) {
+      var container = document.getElementById('all-tab-mobile');
+      var kpis = data.kpis;
+      var projects = data.projects;
+
+      if (!kpis || !projects) {
+        container.innerHTML = '<div class="loading">데이터가 없습니다</div>';
+        return;
+      }
+
+      // Flatten projects with hierarchy
+      flattenedProjects = [];
+      kpis.forEach(function(kpi) {
+        var kpiProjects = projects.filter(function(p) { 
+          return kpi.projects.some(function(rel) { return rel.id === p.id; });
+        });
+
+        var detailGroups = {};
+        kpiProjects.forEach(function(project) {
+          var detail = project.kpiDetail || '기타';
+          if (!detailGroups[detail]) {
+            detailGroups[detail] = [];
+          }
+          detailGroups[detail].push(project);
+        });
+
+        var sortedDetails = Object.keys(detailGroups).sort(function(a, b) { return a.localeCompare(b, 'ko'); });
+
+        sortedDetails.forEach(function(detail) {
+          detailGroups[detail].forEach(function(project) {
+            flattenedProjects.push({
+              kpi: kpi.name,
+              detail: detail,
+              project: project
+            });
+          });
+        });
+      });
+
+      currentCardIndex = 0;
+      renderCardStack();
+    }
+
+    function renderCardStack() {
+      var container = document.getElementById('all-tab-mobile');
+      
+      if (flattenedProjects.length === 0) {
+        container.innerHTML = '<div class="loading">프로젝트가 없습니다</div>';
+        return;
+      }
+
+      var html = '<div class="card-stack">';
+      
+      // Show current and next 2 cards
+      for (var i = currentCardIndex; i < Math.min(currentCardIndex + 3, flattenedProjects.length); i++) {
+        var item = flattenedProjects[i];
+        var project = item.project;
+        var zIndex = 100 - (i - currentCardIndex);
+        var scale = 1 - (i - currentCardIndex) * 0.05;
+        var translateY = (i - currentCardIndex) * 10;
+
+        html += '<div class="project-card" data-index="' + i + '" style="z-index: ' + zIndex + '; transform: scale(' + scale + ') translateY(' + translateY + 'px);">';
+        html += '<div class="card-level level-kpi">📊 ' + item.kpi + '</div>';
+        html += '<div class="card-level level-detail">📍 ' + item.detail + '</div>';
+        html += '<div class="card-title">' + (project.name || '-') + '</div>';
+        html += '<div class="card-field"><span class="card-label">목표:</span><span class="card-value">' + (project.goal || '-') + '</span></div>';
+        html += '<div class="card-field"><span class="card-label">국가:</span><span class="card-value">' + (project.country || '-') + '</span></div>';
+        html += '<div class="card-field"><span class="card-label">부서:</span><span class="card-value">' + (project.division || '-') + '</span></div>';
+        html += '<div class="card-field"><span class="card-label">담당자:</span><span class="card-value">' + (project.owner || '-') + '</span></div>';
+        html += '<div class="card-field"><span class="card-label">상태:</span><span class="card-value">' + (project.status || '-') + '</span></div>';
+        html += '<div class="card-field"><span class="card-label">진행률:</span><span class="card-value">' + (project.progress || 0) + '%</span></div>';
+        html += '<div class="card-field"><span class="card-label">마감일:</span><span class="card-value">' + (project.deadline || '-') + '</span></div>';
+        html += '<div class="card-actions">';
+        html += '<button class="card-btn card-btn-secondary" onclick="openEditModal(\'' + project.id + '\')">✏️ 수정</button>';
+        html += '<a href="' + (project.link || '#') + '" target="_blank" class="card-btn card-btn-primary" style="text-decoration: none; text-align: center;">🔗 노션 열기</a>';
+        html += '</div>';
+        html += '</div>';
+      }
+
+      html += '</div>';
+      html += '<div class="swipe-hint">← 스와이프해서 다음 카드 보기 →</div>';
+      html += '<div class="progress-indicator">';
+      for (var j = 0; j < flattenedProjects.length; j++) {
+        html += '<div class="progress-dot' + (j === currentCardIndex ? ' active' : '') + '"></div>';
+      }
+      html += '</div>';
+
+      container.innerHTML = html;
+
+      // Add swipe event listeners
+      addSwipeListeners();
+    }
+
+    function addSwipeListeners() {
+      var cards = document.querySelectorAll('.project-card');
+      if (cards.length === 0) return;
+
+      var currentCard = cards[0];
+      var startX = 0;
+      var currentX = 0;
+      var isDragging = false;
+
+      currentCard.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+        currentCard.classList.add('swiping');
+      });
+
+      currentCard.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        currentX = e.touches[0].clientX;
+        var diff = currentX - startX;
+        currentCard.style.transform = 'translateX(' + diff + 'px) rotate(' + (diff * 0.1) + 'deg)';
+      });
+
+      currentCard.addEventListener('touchend', function(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        currentCard.classList.remove('swiping');
+
+        var diff = currentX - startX;
+        if (Math.abs(diff) > 100) {
+          // Swipe detected
+          currentCard.classList.add('removing');
+          setTimeout(function() {
+            currentCardIndex++;
+            if (currentCardIndex >= flattenedProjects.length) {
+              currentCardIndex = 0;
+            }
+            renderCardStack();
+          }, 300);
+        } else {
+          // Return to original position
+          currentCard.style.transform = '';
+        }
+      });
+    }
+
+    function toggleKpi(kpiId) {
+      var element = document.getElementById('kpi-' + kpiId);
+      element.classList.toggle('active');
+    }
+
+    function toggleDetail(detailId) {
+      var element = document.getElementById(detailId);
+      element.classList.toggle('active');
+    }
+
+    function toggleAllKpis(open) {
+      document.querySelectorAll('.kpi-details').forEach(function(el) {
+        if (open) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+      
+      document.querySelectorAll('.detail-content').forEach(function(el) {
+        if (open) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+    }
+
+    async function loadUpdates() {
+      var container = document.getElementById('updates-tab');
+      var projects = allData.projects;
+
+      if (!projects) {
+        container.innerHTML = '<div class="loading">데이터를 먼저 로드해주세요</div>';
+        return;
+      }
+
+      function isWithin7Days(lastEditedTime) {
+        if (!lastEditedTime) return false;
+        var now = new Date();
+        var edited = new Date(lastEditedTime);
+        var diffDays = (now - edited) / (1000 * 60 * 60 * 24);
+        return diffDays <= 7;
+      }
+
+      function getTimeAgo(dateString) {
+        var now = new Date();
+        var past = new Date(dateString);
+        var diffMs = now - past;
+        var diffMins = Math.floor(diffMs / (1000 * 60));
+        var diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        var diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffMins < 60) return diffMins + '분 전';
+        if (diffHours < 24) return diffHours + '시간 전';
+        return diffDays + '일 전';
+      }
+
+      var recentProjects = projects
+        .filter(function(p) { return isWithin7Days(p.lastEditedTime) && p.content && p.content.trim() !== ''; })
+        .sort(function(a, b) { return new Date(b.lastEditedTime) - new Date(a.lastEditedTime); });
+
+      if (recentProjects.length === 0) {
+        container.innerHTML = '<div class="loading">최근 7일 이내 메모가 업데이트된 프로젝트가 없습니다</div>';
+        return;
+      }
+
+      var html = '<div class="update-list" style="background: white; border-radius: 12px; padding: 20px;">';
+
+      recentProjects.forEach(function(project) {
+        var timeAgo = getTimeAgo(project.lastEditedTime);
+        
+        html += '<div style="border-bottom: 1px solid #e5e5e5; padding: 20px 0;"><h3 style="color: #333; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 1.1em;">' + project.name + '<span style="font-size: 0.85em; color: #999; font-weight: normal;">' + timeAgo + '</span></h3><div style="margin-top: 12px; padding-top: 12px; font-size: 0.95em; color: #666;"><p><strong>목표:</strong> ' + (project.goal || '-') + '</p><p><strong>상태:</strong> ' + (project.status || '-') + ' | <strong>진행률:</strong> ' + (project.progress || 0) + '%</p><div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.9em; white-space: pre-wrap;">' + project.content + '</div><a href="' + (project.link || '#') + '" target="_blank" style="display: inline-block; margin-top: 10px; color: #2196F3; text-decoration: none; font-weight: 600; font-size: 0.9em;">노션에서 전체 보기 →</a></div></div>';
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function openEditModal(projectId) {
+      var project = allData.projects.find(function(p) { return p.id === projectId; });
+      if (!project) return;
+
+      document.getElementById('edit-project-id').value = project.id;
+      document.getElementById('edit-name').value = project.name || '';
+      document.getElementById('edit-goal').value = project.goal || '';
+      document.getElementById('edit-owner').value = project.owner || '';
+      document.getElementById('edit-progress').value = project.progress || 0;
+      document.getElementById('edit-deadline').value = project.deadline || '';
+
+      var countrySelect = document.getElementById('edit-country');
+      countrySelect.innerHTML = '';
+      if (schema.countries && schema.countries.length > 0) {
+        schema.countries.forEach(function(country) {
+          var option = document.createElement('option');
+          option.value = country.name;
+          option.textContent = country.name;
+          var selectedCountries = (project.country || '').split(',').map(function(c) { return c.trim(); });
+          if (selectedCountries.includes(country.name)) {
+            option.selected = true;
+          }
+          countrySelect.appendChild(option);
+        });
+      }
+
+      var divisionSelect = document.getElementById('edit-division');
+      divisionSelect.innerHTML = '<option value="">선택하세요</option>';
+      if (schema.divisions && schema.divisions.length > 0) {
+        schema.divisions.forEach(function(division) {
+          var option = document.createElement('option');
+          option.value = division.name;
+          option.textContent = division.name;
+          if (project.division === division.name) {
+            option.selected = true;
+          }
+          divisionSelect.appendChild(option);
+        });
+      }
+
+      var statusSelect = document.getElementById('edit-status');
+      statusSelect.innerHTML = '<option value="">선택하세요</option>';
+      if (schema.statuses && schema.statuses.length > 0) {
+        schema.statuses.forEach(function(status) {
+          var option = document.createElement('option');
+          option.value = status.name;
+          option.textContent = status.name;
+          if (project.status === status.name) {
+            option.selected = true;
+          }
+          statusSelect.appendChild(option);
+        });
+      }
+
+      document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('active');
+    }
+
+    async function handleEditSubmit(event) {
+      event.preventDefault();
+
+      var projectId = document.getElementById('edit-project-id').value;
+      var goal = document.getElementById('edit-goal').value;
+      var countryOptions = document.getElementById('edit-country').selectedOptions;
+      var country = Array.from(countryOptions).map(function(opt) { return opt.value; });
+      var division = document.getElementById('edit-division').value;
+      var status = document.getElementById('edit-status').value;
+      var progress = parseInt(document.getElementById('edit-progress').value);
+      var deadline = document.getElementById('edit-deadline').value;
+
+      try {
+        var response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId: projectId,
+            goal: goal,
+            country: country,
+            division: division,
+            status: status,
+            progress: progress,
+            deadline: deadline
+          })
+        });
+
+        var result = await response.json();
+
+        if (result.success) {
+          alert('프로젝트가 성공적으로 수정되었습니다!');
+          closeEditModal();
+          loadData();
+        } else {
+          alert('수정 실패: ' + (result.error || '알 수 없는 오류'));
+        }
+      } catch (error) {
+        console.error('수정 오류:', error);
+        alert('수정 중 오류가 발생했습니다.');
+      }
+    }
+
+    document.getElementById('edit-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeEditModal();
+      }
+    });
+
+    detectDevice();
+    loadData();
+  </script>
+</body>
+</html>
